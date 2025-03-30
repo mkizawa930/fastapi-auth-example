@@ -2,14 +2,16 @@ from typing import Annotated
 
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
-from app import schemas
-from app.config import google_auth_config
-from app.crud import user_crud
-from app.database import get_db
-from app.api.endpoints.auth_helper import JWTer, PasswordHasher, get_jwter, get_password_hasher
 from loguru import logger
+from sqlalchemy.orm import Session
+
+from app import models, schemas
+from app.api.endpoints.auth_helper import JWTer, PasswordHasher, generate_access_token, get_jwter, get_password_hasher
+from app.config import google_auth_config
+from app.crud.user_crud import UserCrud
+from app.database import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
@@ -42,17 +44,19 @@ router = APIRouter(tags=["Authentication"])
 async def auth(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db=Depends(get_db),
+    user_crud: UserCrud = Depends(UserCrud),
     hasher: PasswordHasher = Depends(get_password_hasher),
     jwter: JWTer = Depends(get_jwter),
 ):
-    try:
-        db_user = user_crud.get_user_by_email(db, email=form_data.username)
-        if hasher.hash_password(form_data.password) != db_user.password_hashed:
-            raise HTTPException(status_code=401, detail="password mismtach")
-        access_token = jwter.encode(username=db_user.username)
-        return schemas.TokenData(access_token=access_token, token_type="bearer")
-    except Exception as e:
-        raise HTTPException(500, detail=f"error: {e}")
+    db_user = user_crud.get_user_by_email(db, email=form_data.username)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="user not found")
+
+    hashed_password = hasher.hash_password(form_data.password)
+    if db_user.auth.password_hashed != hashed_password:
+        raise HTTPException(status_code=401, detail="password mismtach")
+    access_token = jwter.encode(username=db_user.username)
+    return schemas.TokenData(access_token=access_token, token_type="bearer")
 
 
 @router.get("/login/{provider}")
@@ -66,8 +70,25 @@ async def auth_with_provider(provider: str, request: Request):
 
 
 @router.get("/auth/google")
-async def authorize_google(request: Request, jwter: JWTer = Depends(get_jwter)):
+async def authorize_google(
+    request: Request,
+    db: Session = Depends(get_db),
+    user_crud: UserCrud = Depends(UserCrud),
+    jwter: JWTer = Depends(get_jwter),
+):
     google = oauth.create_client("google")
     token = await google.authorize_access_token(request)
-    # get user info
-    return {"access_token": ""}
+
+    db_user = user_crud.find_user_by_email(db, email=token["userinfo"]["email"], auth_method=models.AuthMethod.Google)
+    if not db_user:
+        db_user = user_crud.create_user(
+            db,
+            username=token["userinfo"]["name"],
+            email=token["userinfo"]["email"],
+            provider="google",
+        )
+
+    access_token = generate_access_token(jwter, db_user)
+    response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
+    response.set_cookie(key="access_token", value=access_token, httponly=True)
+    return response

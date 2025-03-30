@@ -1,5 +1,6 @@
 from typing import AsyncGenerator, Generator
 
+from loguru import logger
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
@@ -18,5 +19,10 @@ async def get_db() -> AsyncGenerator[Session, None]:
     db = SessionLocal()
     try:
         yield db
+        db.commit()
+    except Exception as e:
+        logger.error(e)
+        db.rollback()
+        raise
     finally:
         db.close()

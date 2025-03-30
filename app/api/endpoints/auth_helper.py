@@ -10,6 +10,9 @@ from fastapi import HTTPException
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app import models
+from app.crud.user_crud import UserCrud
+
 dotenv.load_dotenv()
 
 
@@ -42,13 +45,7 @@ class JWTer:
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
         return int(datetime.timestamp(expires_at))
 
-    def encode(self, username: str) -> str:
-        exp = JWTer.expires_timestamp(self.config.expires_delta)
-        payload = dict(
-            sun=uuid4().hex,
-            username=username,
-            exp=exp,
-        )
+    def encode(self, payload) -> str:
         return jwt.encode(payload, self.config.secret_key, self.config.algorithm)
 
     def decode(self, token: str) -> any:
@@ -97,3 +94,11 @@ class PasswordHasher:
 
 async def get_password_hasher() -> PasswordHasher:
     return PasswordHasher()
+
+
+def generate_access_token(jwter: JWTer, user: models.User) -> str:
+    payload = {
+        "sub": user.id,
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=300),
+    }
+    return jwter.encode(payload)

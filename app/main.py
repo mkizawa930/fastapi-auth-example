@@ -2,10 +2,10 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.models import Base
 from app.api.endpoints.auth import router as auth_router
 from app.api.endpoints.users import router as user_router
 from app.database import engine
+from app.models import Base
 
 Base.metadata.create_all(engine)
 

@@ -5,6 +5,7 @@ def default_headers_with_token(headers: dict, token: str):
     headers["Authorization"] = f"Bearer: {token}"
     return headers
 
+
 def authenticate(client: TestClient):
     response = client.post("/login", data={"username": "testuser@example.com", "password": "password"})
     if response.status_code != 200:

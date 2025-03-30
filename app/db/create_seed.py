@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+
 from loguru import logger
 
 from app import models

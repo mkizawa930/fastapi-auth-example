@@ -6,28 +6,30 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "authlib>=1.5.1",
-    "factory-boy>=3.3.1",
-    "faker>=30.3.0",
     "fastapi>=0.115.0",
+    "gunicorn>=23.0.0",
     "httpx>=0.27.2",
     "itsdangerous>=2.2.0",
     "loguru>=0.7.3",
     "pydantic-settings>=2.5.2",
     "pydantic[email]>=2.9.2",
     "pyjwt>=2.9.0",
-    "pytest>=8.3.3",
     "python-dotenv>=1.0.1",
     "python-jose>=3.3.0",
     "python-multipart>=0.0.12",
-    "ruff>=0.6.9",
     "sqlalchemy>=2.0.35",
     "uvicorn>=0.31.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "factory-boy>=3.3.1",
+    "faker>=30.3.0",
+    "isort>=6.0.1",
+    "pytest>=8.3.3",
+    "ruff>=0.6.9",
 ]
 
 [tool.ruff]
 line-length = 120
 
-[tool.uv]
-dev-dependencies = [
-    "isort>=6.0.1",
-]
