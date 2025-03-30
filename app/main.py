@@ -1,12 +1,13 @@
 import uvicorn
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
 
-from api import schemas, models
-from api.database import engine
-from api.routers.auth import router as auth_router
-from api.routers.users import router as user_router
+from app.models import Base
+from app.api.endpoints.auth import router as auth_router
+from app.api.endpoints.users import router as user_router
+from app.database import engine
 
-models.Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 
 # fake_users_db = {
 #     "johndoe": {
@@ -26,6 +27,8 @@ models.Base.metadata.create_all(engine)
 # }
 
 app = FastAPI()
+
+app.add_middleware(SessionMiddleware, secret_key="secret")
 
 app.include_router(auth_router)
 app.include_router(user_router)

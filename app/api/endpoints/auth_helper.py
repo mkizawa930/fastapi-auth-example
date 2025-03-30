@@ -6,7 +6,7 @@ from uuid import uuid4
 
 import dotenv
 import jwt
-from fastapi import  HTTPException
+from fastapi import HTTPException
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

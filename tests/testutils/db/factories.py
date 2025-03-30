@@ -1,7 +1,8 @@
-from api import models
-from api.routers.auth_helper import PasswordHasher
 import factory
 from faker import Faker
+
+from app import models
+from app.api.endpoints.auth_helper import PasswordHasher
 from tests.helpers import get_random_string
 
 Faker.seed(0)

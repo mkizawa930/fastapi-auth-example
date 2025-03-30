@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from api import models
-from api.routers.auth_helper import PasswordHasher
+from app import models
+from app.api.endpoints.auth_helper import PasswordHasher
 from tests.testutils.db.factories import UserFactory
 
 

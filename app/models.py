@@ -1,6 +1,6 @@
 from sqlalchemy import Column, DateTime, Integer, String, Text, func
 
-from api.database import Base
+from app.database import Base
 
 
 class CustomModelMixin:
@@ -9,7 +9,13 @@ class CustomModelMixin:
 
 
 class User(CustomModelMixin, Base):
-    """User table"""
+    """User
+    Attributes:
+        - id(int)
+        - username(str)
+        - email(str)
+        - password_hashed(str)
+    """
 
     __tablename__ = "users"
 

@@ -1,7 +1,9 @@
 from typing import AsyncGenerator
-from api import models
+
 import pytest
 from sqlalchemy.orm import Session
+
+from app import models
 from tests.database import TestSessionLocal, test_engine
 from tests.testutils.db.seed import create_users
 

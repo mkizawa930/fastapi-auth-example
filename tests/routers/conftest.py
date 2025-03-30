@@ -1,9 +1,9 @@
-from api.main import app
-from api import models
-from api.database import get_db
 import pytest
 from fastapi.testclient import TestClient
 
+from app import models
+from app.database import get_db
+from app.main import app
 from tests.conftest import get_test_db
 from tests.database import test_engine
 
@@ -20,5 +20,3 @@ def setup_and_teardown():
 @pytest.fixture(scope="session")
 def client() -> TestClient:
     return test_client
-
-

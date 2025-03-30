@@ -1,13 +1,11 @@
-from typing import Annotated
-
-from api.crud import user_crud
-from api.routers.auth_helper import PasswordHasher, get_password_hasher
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from api import crud, models, schemas
-from api.database import get_db
-from api.routers.auth import get_current_user
+from app import schemas
+from app.crud import user_crud
+from app.database import get_db
+from app.api.endpoints.auth import get_current_user
+from app.api.endpoints.auth_helper import PasswordHasher, get_password_hasher
 
 router = APIRouter(tags=["Users"])
 

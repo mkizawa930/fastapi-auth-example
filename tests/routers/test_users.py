@@ -1,5 +1,6 @@
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
+
 from tests.helpers import get_random_string
 from tests.routers.helpers import authenticate, default_headers_with_token
 
